@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>LIRC IR Signal Visualization</h2>
+        <canvas id="irCanvas" width="800" height="200"></canvas>
+    </div>
+
+    <script>
+        // Original data
+        const originalData = [9025, 4485, 573, 1670, 573, 559, 573, 1670, 573, 559, 573, 559, 573, 559, 573, 559, 573, 1670, 573, 559, 573, 1670, 573, 559, 573, 1670, 573, 559, 573, 1670, 573, 1670, 573, 559, 573, 1670, 573, 1670, 573, 1670, 573, 559, 573, 1670, 573, 559, 573, 559, 573, 1670, 573, 559, 573, 559, 573, 559, 573, 1670, 573, 559, 573, 1670, 573, 1670, 573, 559, 573];
+        
+        // Add padding durations (using average duration for consistent scale)
+        const avgDuration = originalData.reduce((a, b) => a + b, 0) / originalData.length;
+        const paddingDuration = avgDuration;
+        const data = [paddingDuration, ...originalData, paddingDuration];
+        
+        const canvas = document.getElementById('irCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Clear canvas
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Drawing settings
+        const padding = 20;
+        const height = canvas.height - 2 * padding;
+        const baseY = padding + height / 2;
+        
+        // Calculate total duration and scale factor
+        const totalDuration = data.reduce((a, b) => a + b, 0);
+        const scaleX = (canvas.width - 2 * padding) / totalDuration;
+        
+        // Draw waveform
+        ctx.beginPath();
+        ctx.strokeStyle = '#2196F3';
+        ctx.lineWidth = 2;
+        
+        let x = padding;
+        let isHigh = false; // Start with low padding
+        
+        ctx.moveTo(x, baseY);
+        
+        data.forEach((duration) => {
+            // Draw vertical line
+            ctx.lineTo(x, baseY - (isHigh ? height/3 : 0));
+            x += duration * scaleX;
+            ctx.lineTo(x, baseY - (isHigh ? height/3 : 0));
+            isHigh = !isHigh;
+        });
+        
+        ctx.stroke();
+        
+        // Draw axis
+        ctx.beginPath();
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.stroke();
+    </script>
+</body>
+</html>
